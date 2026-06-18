@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "timestamp": "2026-06-18T10:14:20.887907",
+  "global_status": "critical",
+  "drift_report_path": "C:\\Users\\d.jauregui\\Desktop\\MetroProyectos\\2026_DemandaConIA\\Desarrollo\\project-MetroScenarioStudio\\ml_pipeline\\artifacts\\monitoring\\drift_metrics.json",
+  "checks": {
+    "concept_drift": {
+      "status": "drifted",
+      "source": "demand_validations"
+    },
+    "data_drift": {
+      "status": "drifted",
+      "source": "weather_features"
+    }
+  }
+}

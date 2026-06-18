@@ -5,7 +5,7 @@ services:
       dockerfile: platform/backend/Dockerfile
     container_name: metro-backend
     ports:
-      - "8000:8000"
+      - "8011:8000"
     volumes:
       - backend-storage:/app/platform/backend/storage
       - ../data:/app/data:ro
@@ -17,6 +17,11 @@ services:
       - MSS_DATA_ROOT=/app/data
       - MSS_METRO_DEMAND_MODELS_ROOT=/app/ml_pipeline
     restart: always
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3).read()"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
 
   frontend:
     build:
@@ -24,10 +29,72 @@ services:
       dockerfile: Dockerfile
     container_name: metro-frontend
     ports:
-      - "80:80"
+      - "8080:80"
     depends_on:
       - backend
     restart: always
 
+  mlflow:
+    build:
+      context: ..
+      dockerfile: platform/backend/Dockerfile
+    container_name: metro-mlflow
+    command:
+      - python
+      - -m
+      - mlflow
+      - ui
+      - --backend-store-uri
+      - file:/app/ml_pipeline/mlruns
+      - --host
+      - 0.0.0.0
+      - --port
+      - "5000"
+    ports:
+      - "5000:5000"
+    volumes:
+      - ../ml_pipeline:/app/ml_pipeline
+    environment:
+      - MLFLOW_TRACKING_URI=file:/app/ml_pipeline/mlruns
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    container_name: metro-prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.console.libraries=/usr/share/prometheus/console_libraries
+      - --web.console.templates=/usr/share/prometheus/consoles
+      - --web.enable-lifecycle
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus-data:/prometheus
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.4.0
+    container_name: metro-grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
 volumes:
   backend-storage:
+  prometheus-data:
+  grafana-data:

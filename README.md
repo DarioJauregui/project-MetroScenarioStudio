@@ -50,7 +50,7 @@ Para parar procesos lanzados por el script:
 powershell -ExecutionPolicy Bypass -File .\scripts\stop-metro-scenario-studio.ps1
 ```
 
-Para liberar puertos habituales del proyecto (`80`, `8000`, `8011`, `5173`) y bajar el stack Docker si esta activo:
+Para liberar puertos habituales del proyecto (`80`, `3000`, `5000`, `8000`, `8011`, `8080`, `9090`, `5173`) y bajar el stack Docker si esta activo:
 
 ```powershell
 .\VaciarPuertosMetroScenarioStudio.cmd
@@ -125,9 +125,24 @@ docker compose -f infrastructure\docker-compose.yml up -d
 Pruebas esperadas:
 
 ```powershell
-Invoke-WebRequest http://127.0.0.1/api/health -UseBasicParsing
-Invoke-WebRequest http://127.0.0.1 -UseBasicParsing
+Invoke-WebRequest http://127.0.0.1:8011/api/health -UseBasicParsing
+Invoke-WebRequest http://127.0.0.1:8011/metrics -UseBasicParsing
+Invoke-WebRequest http://127.0.0.1:8080 -UseBasicParsing
+Invoke-WebRequest http://127.0.0.1:9090/-/ready -UseBasicParsing
+Invoke-WebRequest http://127.0.0.1:3000/api/health -UseBasicParsing
+Invoke-WebRequest http://127.0.0.1:5000 -UseBasicParsing
 ```
+
+URLs del stack Docker:
+
+- Frontend: `http://127.0.0.1:8080`
+- Backend API: `http://127.0.0.1:8011`
+- Metricas Prometheus crudas del backend: `http://127.0.0.1:8011/metrics`
+- Prometheus: `http://127.0.0.1:9090`
+- Grafana: `http://127.0.0.1:3000` (`admin` / `admin`)
+- MLflow: `http://127.0.0.1:5000`
+
+Grafana arranca con el datasource `Prometheus` provisionado y el dashboard `Metro Scenario Studio MLOps`. Prometheus carga reglas de alerta basicas desde `infrastructure/prometheus/alerts.yml`.
 
 Para etiquetar imagenes hacia un registry:
 

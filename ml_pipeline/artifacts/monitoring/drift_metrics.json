@@ -1,11 +1,58 @@
 {
-  "timestamp": "2026-06-16T19:02:09.485349",
+  "timestamp": "2026-06-18T10:14:20.887907",
   "drift_metrics": {
     "demand_validations": {
-      "status": "missing_data"
+      "drift_detected": true,
+      "p_value": 3.2859730097483136e-06,
+      "ks_statistic": 0.4502257124047776,
+      "psi": 1.3922417567335281,
+      "status": "drifted"
     },
     "weather_features": {
-      "status": "missing_data"
+      "temp_max_c": {
+        "drift_detected": true,
+        "p_value": 4.680443858457593e-10,
+        "ks_statistic": 0.572031076581576,
+        "psi": 1.2078727606083888,
+        "status": "drifted"
+      },
+      "temp_min_c": {
+        "drift_detected": true,
+        "p_value": 3.4491702457305673e-16,
+        "ks_statistic": 0.7107658157602663,
+        "psi": 1.8824305851815248,
+        "status": "drifted"
+      },
+      "temp_mean_c": {
+        "drift_detected": true,
+        "p_value": 1.4052396754928323e-14,
+        "ks_statistic": 0.679023307436182,
+        "psi": 1.5417968278761225,
+        "status": "drifted"
+      },
+      "precip_mm": {
+        "drift_detected": false,
+        "p_value": 0.5393844003733368,
+        "ks_statistic": 0.13962264150943396,
+        "psi": 0.1666869852635995,
+        "status": "stable"
+      }
+    }
+  },
+  "summary": {
+    "schema_version": 1,
+    "timestamp": "2026-06-18T10:14:20.887907",
+    "global_status": "critical",
+    "drift_report_path": "C:\\Users\\d.jauregui\\Desktop\\MetroProyectos\\2026_DemandaConIA\\Desarrollo\\project-MetroScenarioStudio\\ml_pipeline\\artifacts\\monitoring\\drift_metrics.json",
+    "checks": {
+      "concept_drift": {
+        "status": "drifted",
+        "source": "demand_validations"
+      },
+      "data_drift": {
+        "status": "drifted",
+        "source": "weather_features"
+      }
     }
   }
 }

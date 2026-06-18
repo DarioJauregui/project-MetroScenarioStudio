@@ -1,5 +1,5 @@
 param(
-    [int[]]$Ports = @(80, 8000, 8011, 5173),
+    [int[]]$Ports = @(80, 3000, 5000, 8000, 8011, 8080, 9090, 5173),
     [switch]$SkipDocker,
     [Alias("WhatIf")]
     [switch]$Preview

@@ -36,19 +36,27 @@ def prometheus_metrics(
         metrics_list = model_data.get("metrics", [])
         if isinstance(metrics_list, list):
             for m in metrics_list:
-                model_name = m.get("model_name", "unknown")
-                variant = m.get("variant", "unknown")
+                model_name = _label(str(m.get("model_name", "unknown")))
+                variant = _label(str(m.get("variant", "unknown")))
+                series_policy = _label(str(m.get("series_policy", "unknown")))
+                horizon_days = _label(str(m.get("horizon_days", "unknown")))
                 wape = m.get("wape")
                 smape = m.get("smape")
 
                 if wape is not None:
                     try:
-                        lines.append(f'mss_model_wape{{model_name="{model_name}",variant="{variant}"}} {float(wape)}')
+                        lines.append(
+                            f'mss_model_wape{{model_name="{model_name}",variant="{variant}",'
+                            f'series_policy="{series_policy}",horizon_days="{horizon_days}"}} {float(wape)}'
+                        )
                     except ValueError:
                         pass
                 if smape is not None:
                     try:
-                        lines.append(f'mss_model_smape{{model_name="{model_name}",variant="{variant}"}} {float(smape)}')
+                        lines.append(
+                            f'mss_model_smape{{model_name="{model_name}",variant="{variant}",'
+                            f'series_policy="{series_policy}",horizon_days="{horizon_days}"}} {float(smape)}'
+                        )
                     except ValueError:
                         pass
     except Exception as e:

@@ -9,13 +9,16 @@ from metro_demand_models.monitoring.drift_detection import run_drift_monitoring
 from metro_demand_models.utils.logging import configure_logging
 
 
+MONOREPO_ROOT = PROJECT_ROOT.parent
+
+
 def main() -> int:
     configure_logging("INFO")
     logger = logging.getLogger("metro_demand_models.scripts.run_drift_monitoring")
 
     logger.info("Initializing daily model drift monitoring...")
     try:
-        run_drift_monitoring(PROJECT_ROOT)
+        run_drift_monitoring(MONOREPO_ROOT)
         logger.info("Drift monitoring complete. Report saved.")
         return 0
     except Exception as e:

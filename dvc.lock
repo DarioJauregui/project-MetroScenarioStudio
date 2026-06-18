@@ -32,8 +32,12 @@ stages:
     outs:
     - path: ml_pipeline\artifacts\monitoring\drift_metrics.json
       hash: md5
-      md5: cf4940e4989688aba7291a87f8eca4de
-      size: 212
+      md5: fc0e6842c305d0ff822539ba5d08e91c
+      size: 1750
+    - path: ml_pipeline\artifacts\monitoring\monitoring_summary.json
+      hash: md5
+      md5: 5fede156f9c0c4f05ad24c4739386f03
+      size: 506
     - path: ml_pipeline\artifacts\monitoring\pipeline_run_summary.json
       hash: md5
       md5: cbb6c9d9f9fa24ec1a17c4fad7634688

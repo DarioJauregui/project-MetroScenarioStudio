@@ -1,0 +1,65 @@
+groups:
+  - name: metro-scenario-studio
+    rules:
+      - alert: MetroBackendDown
+        expr: up{job="metro-backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: Metro Scenario Studio backend is down
+          description: Prometheus cannot scrape the backend /metrics endpoint.
+
+      - alert: MetroPipelineFailed
+        expr: mss_pipeline_last_run_status{status="failed"} == 1
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: Last Metro Scenario Studio pipeline run failed
+          description: The latest pipeline_run_summary.json reports global_status=failed.
+
+      - alert: MetroPipelineWarning
+        expr: mss_pipeline_last_run_status{status="warning"} == 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Last Metro Scenario Studio pipeline run completed with warnings
+          description: A non-critical pipeline step failed or was skipped.
+
+      - alert: MetroMonitoringMissing
+        expr: mss_monitoring_status{status="missing"} == 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Monitoring summary is missing
+          description: monitoring_summary.json is not available to the backend.
+
+      - alert: MetroMonitoringCritical
+        expr: mss_monitoring_status{status="critical"} == 1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: Metro Scenario Studio monitoring is critical
+          description: Drift or monitoring checks report global_status=critical.
+
+      - alert: MetroModelArtifactStale
+        expr: mss_model_artifact_age_seconds > 1209600
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: Promoted model artifact is older than 14 days
+          description: The promoted strict model has not been refreshed recently.
+
+      - alert: MetroExternalFeaturesStale
+        expr: mss_external_features_age_seconds > 172800
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: External features are older than 2 days
+          description: The external_daily_features parquet may need to be refreshed.
