@@ -1,0 +1,5 @@
+/stations_master.parquet
+/lines_master.parquet
+/equipment_master.parquet
+/equipment_significant_master.parquet
+/network_changes_history.parquet

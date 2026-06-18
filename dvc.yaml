@@ -1,0 +1,17 @@
+stages:
+  daily_pipeline:
+    desc: Run the local daily demand pipeline and refresh operational monitoring
+      metrics.
+    cmd: .\.venv\Scripts\python.exe pipelines\run_pipeline.py
+    deps:
+    - data\external\datos_externos
+    - ml_pipeline\conf\base\config.toml
+    - ml_pipeline\src
+    - pipelines\path_resolution.py
+    - pipelines\run_pipeline.py
+    - pipelines\run_summary.py
+    metrics:
+    - ml_pipeline\artifacts\monitoring\drift_metrics.json:
+        cache: false
+    - ml_pipeline\artifacts\monitoring\pipeline_run_summary.json:
+        cache: false

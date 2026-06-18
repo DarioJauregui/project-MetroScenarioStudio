@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-06-16T19:02:09.485349",
+  "drift_metrics": {
+    "demand_validations": {
+      "status": "missing_data"
+    },
+    "weather_features": {
+      "status": "missing_data"
+    }
+  }
+}

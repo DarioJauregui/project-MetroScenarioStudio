@@ -1,0 +1,41 @@
+graph TD
+    subgraph Ingesta Externa
+        S1[SharePoint Conecta] -->|Exportador Local| S2(export_calendarioEventos.py)
+        S2 -->|Preservando Ubicaciones| S3[Calendario_Eventos.xlsx]
+        
+        W1[Open-Meteo Hybrid API Archive/Forecast] -->|Actualizador Clima| W2(update_weather_data)
+        F1[Festivos.xlsx] -->|Cálculo Proximidad/Bridge| W2
+        W2 -->|Sincronización Climatología| W3[external_daily_features.parquet]
+    end
+
+    subgraph Consolidación Validaciones
+        A[M:\ xx_Automaticos_EnPruebas] -->|Escaneo de CSVs diarios| B(run_pipeline.py)
+        B -->|PyArrow streaming compute| C{Consolidación Parquet}
+        C -->|Filtro idempotente| D[validaciones_consolidado.parquet]
+    end
+
+    subgraph Compilación y Modelado
+        S3 -->|Compilación de Eventos| OP(build_operational_datasets.py)
+        W3 -->|Compilación Clima/Holidays| OP
+        OP -->|Señales Operacionales| OP_OUT[events_phase2a_series_daily.parquet]
+        
+        D -->|Agregación por estación/día| E[build_daily_training_dataset.py]
+        OP_OUT -->|Enriquecer Dataset| E
+        E -->|Generación de datasets por configuración| F[artifacts/daily_modeling/training_data/]
+        
+        F -->|Entrenamiento HGBR| G[train.py]
+        G -->|Generación de modelos pickle| H[artifacts/models/daily_modeling/]
+        H -->|Sincronización automática| I[(Platform Inference Backend)]
+        
+        H -->|Evaluación de rendimiento| J[evaluate.py]
+        J -->|Decisión de agregación| K[series_policy_decision.json]
+        
+        H -->|Supervisión y leakage| L[generate_daily_supervision_artifacts.py]
+        L -->|Reportes de supervisión| M[artifacts/daily_modeling/reports/]
+        
+        H -->|Análisis de festivos| N[generate_special_day_error_analysis.py]
+        N -->|Reportes de días especiales| O[special_day_error_analysis.md]
+        
+        I -->|Prueba de humo| P[run_daily_inference_smoke.py]
+        P -->|Validación final exitosa| Q[recommended_inference_smoke.parquet]
+    end

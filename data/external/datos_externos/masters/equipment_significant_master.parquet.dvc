@@ -1,0 +1,5 @@
+outs:
+- md5: 6ea86b1259b379c2d1084764031626e6
+  size: 10486
+  hash: md5
+  path: equipment_significant_master.parquet

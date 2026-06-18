@@ -1,0 +1,953 @@
+[project]
+name = "metro-demand-models"
+python_version = "3.12"
+
+[paths]
+data_dir = "../data"
+external_data_dir = "../data/external"
+raw_data_dir = "../data/raw"
+interim_data_dir = "../data/interim"
+processed_data_dir = "../data/processed"
+validation_data_dir = "../data/validation"
+validation_schemas_dir = "../data/validation/schemas"
+validation_reports_dir = "../data/validation/reports"
+validation_quarantine_dir = "../data/validation/quarantine"
+artifacts_dir = "artifacts"
+models_dir = "artifacts/models"
+reports_dir = "artifacts/reports"
+mlruns_dir = "mlruns"
+interim_operations_dir = "../data/interim/operations"
+processed_operations_dir = "../data/processed/operations"
+operations_reports_dir = "../data/validation/reports/operations"
+daily_modeling_dir = "artifacts/daily_modeling"
+daily_training_data_dir = "artifacts/daily_modeling/training_data"
+daily_modeling_predictions_dir = "artifacts/daily_modeling/predictions"
+daily_modeling_metrics_dir = "artifacts/daily_modeling/metrics"
+daily_modeling_reports_dir = "artifacts/daily_modeling/reports"
+daily_modeling_visualizations_dir = "artifacts/daily_modeling/visualizations"
+daily_modeling_inference_dir = "artifacts/daily_modeling/inference_smoke"
+daily_modeling_models_dir = "artifacts/models/daily_modeling"
+processed_validations_file = "../data/processed/validaciones/validaciones_consolidado.parquet"
+processed_external_daily_features_file = "../data/processed/external_features/external_daily_features.parquet"
+stations_master_file = "../data/external/datos_externos/masters/stations_master.parquet"
+lines_master_file = "../data/external/datos_externos/masters/lines_master.parquet"
+equipment_master_file = "../data/external/datos_externos/masters/equipment_master.parquet"
+equipment_significant_master_file = "../data/external/datos_externos/masters/equipment_significant_master.parquet"
+network_changes_history_file = "../data/external/datos_externos/masters/network_changes_history.parquet"
+metro_stations_file = "../data/external/datos_externos/config/metro_stations.csv"
+
+[data]
+preferred_format = "parquet"
+supported_formats = ["parquet", "csv", "xlsx", "xlsm"]
+source_patterns = ["*.parquet", "*.csv", "*.xlsx", "*.xlsm"]
+
+[mlflow]
+tracking_uri = ""
+default_experiment = "demand-baselines"
+ui_host = "127.0.0.1"
+ui_port = 5000
+
+[logging]
+level = "INFO"
+
+[datasets.validations]
+path_ref = "processed_validations_file"
+granularity = "transaction"
+required_columns = [
+    "fecha_validacion",
+    "linea",
+    "estacion",
+    "cod_eq",
+    "tipo_validacion",
+    "tipo_titulo",
+    "id_tarjeta",
+    "num_tarjeta",
+    "dinero_deducido",
+    "saldo_restante",
+    "viajes_deducidos",
+    "fecha_validacion_hora_estimada",
+    "fecha_generacion",
+    "rango_desde",
+    "rango_hasta",
+    "dia",
+    "archivo_origen",
+    "_orden_manifest",
+]
+optional_columns = ["fecha_validacion_iso", "fecha_generacion_iso", "rango_desde_iso", "rango_hasta_iso", "rango_fechas_raw", "idtarjeta"]
+timestamp_columns = ["fecha_validacion", "fecha_generacion", "rango_desde", "rango_hasta"]
+date_columns = ["dia"]
+
+[datasets.external_daily_features]
+path_ref = "processed_external_daily_features_file"
+granularity = "daily"
+required_columns = [
+    "date",
+    "year",
+    "month",
+    "day",
+    "quarter",
+    "week_of_year",
+    "day_of_year",
+    "day_of_week",
+    "day_of_week_name",
+    "is_weekend",
+    "is_holiday",
+    "holiday_name",
+    "holiday_scope",
+    "is_holiday_mmo",
+    "is_preholiday",
+    "is_postholiday",
+    "days_to_next_holiday",
+    "days_since_prev_holiday",
+    "is_bridge_candidate",
+    "is_month_start",
+    "is_month_end",
+    "temp_min_c",
+    "temp_max_c",
+    "temp_mean_c",
+    "precip_mm",
+    "rain_hours",
+    "wind_max_kmh",
+    "wind_mean_kmh",
+    "humidity_mean_pct",
+    "pressure_mean_hpa",
+    "weather_code",
+    "weather_source",
+    "weather_summary",
+    "is_rainy_day",
+    "is_heavy_rain_day",
+    "is_hot_day",
+    "is_cold_day",
+    "is_bad_weather_day",
+    "events_total_count",
+    "events_high_impact_count",
+    "events_estimated_attendance_sum",
+    "events_unknown_attendance_count",
+    "events_near_metro_count",
+    "events_city_center_count",
+    "events_culture_count",
+    "events_sports_count",
+    "events_congress_count",
+    "events_university_count",
+    "events_religious_count",
+    "events_other_count",
+    "events_weighted_impact_sum",
+    "max_event_impact_score",
+    "has_major_event",
+    "has_multiple_major_events",
+    "events_geocoded_count",
+    "events_unique_venue_count",
+    "run_id",
+    "year_month",
+    "year_week",
+]
+unique_key = ["date"]
+date_columns = ["date"]
+
+[datasets.stations_master]
+path_ref = "stations_master_file"
+granularity = "line_station_reference"
+required_columns = [
+    "linea",
+    "estacion",
+    "station_join_key",
+    "station_display_name",
+    "station_abbrev",
+    "network_order",
+    "lat",
+    "lon",
+    "zone",
+    "station_group",
+    "is_interchange_candidate",
+    "station_reference_label",
+]
+optional_columns = [
+    "n_validations",
+    "first_seen_date",
+    "last_seen_date",
+    "n_unique_equipment",
+    "n_unique_equipment_significant",
+    "n_validations_significant_equipment",
+    "significant_equipment_validation_share",
+    "station_observation_status",
+    "observed_span_days",
+]
+unique_key = ["linea", "estacion"]
+
+[datasets.lines_master]
+path_ref = "lines_master_file"
+granularity = "line_reference"
+required_columns = ["linea", "line_reference_path"]
+optional_columns = ["n_validations", "n_unique_station_rows", "n_unique_equipment", "first_seen_date", "last_seen_date"]
+unique_key = ["linea"]
+
+[datasets.equipment_master]
+path_ref = "equipment_master_file"
+granularity = "line_station_equipment_reference"
+required_columns = [
+    "linea",
+    "estacion",
+    "cod_eq",
+    "is_suspect_code",
+    "is_significant_equipment",
+    "station_join_key",
+    "station_display_name",
+    "station_abbrev",
+    "network_order",
+    "lat",
+    "lon",
+    "zone",
+    "station_group",
+    "station_reference_label",
+]
+optional_columns = ["n_validations", "first_seen_date", "last_seen_date", "equipment_family", "significant_min_validations_threshold"]
+unique_key = ["linea", "estacion", "cod_eq"]
+
+[datasets.equipment_significant_master]
+path_ref = "equipment_significant_master_file"
+granularity = "line_station_equipment_reference"
+required_columns = [
+    "linea",
+    "estacion",
+    "cod_eq",
+    "is_suspect_code",
+    "is_significant_equipment",
+    "station_join_key",
+    "station_display_name",
+    "station_abbrev",
+    "network_order",
+    "lat",
+    "lon",
+    "zone",
+    "station_group",
+    "station_reference_label",
+    "equipment_observation_status",
+]
+optional_columns = ["n_validations", "first_seen_date", "last_seen_date", "equipment_family", "significant_min_validations_threshold"]
+unique_key = ["linea", "estacion", "cod_eq"]
+
+[datasets.network_changes_history]
+path_ref = "network_changes_history_file"
+granularity = "daily_change_events"
+required_columns = ["change_type", "effective_date", "linea", "estacion", "notes"]
+optional_columns = ["cod_eq"]
+unique_key = ["effective_date", "linea", "estacion", "cod_eq", "change_type"]
+date_columns = ["effective_date"]
+
+[datasets.metro_stations]
+path_ref = "metro_stations_file"
+granularity = "station_display_reference"
+required_columns = [
+    "data_station_name",
+    "station_display_name",
+    "station_abbrev",
+    "network_order",
+    "linea",
+    "lat",
+    "lon",
+    "zone",
+    "station_group",
+]
+optional_columns = ["source_note"]
+
+[modeling.base_dataset]
+name = "phase_2a_station_daily_model_base"
+phase_scope = "phase_2a"
+source_dataset = "validations_filtered_to_trips"
+prediction_unit = "service_date + linea + estacion"
+service_date_column = "service_date"
+target_column = "trip_count"
+identifier_columns = [
+    "service_date",
+    "series_id",
+    "linea",
+    "estacion",
+    "station_join_key",
+    "station_reference_label",
+]
+temporal_columns = [
+    "year",
+    "month",
+    "day",
+    "quarter",
+    "week_of_year",
+    "day_of_year",
+    "day_of_week",
+    "day_of_week_name",
+    "is_weekend",
+    "is_holiday",
+    "holiday_name",
+    "holiday_scope",
+    "is_holiday_mmo",
+    "is_preholiday",
+    "is_postholiday",
+    "days_to_next_holiday",
+    "days_since_prev_holiday",
+    "is_bridge_candidate",
+    "is_month_start",
+    "is_month_end",
+    "year_month",
+    "year_week",
+]
+feature_columns = [
+    "station_display_name",
+    "station_abbrev",
+    "network_order",
+    "lat",
+    "lon",
+    "zone",
+    "station_group",
+    "is_interchange_candidate",
+    "line_reference_path",
+    "temp_min_c",
+    "temp_max_c",
+    "temp_mean_c",
+    "precip_mm",
+    "rain_hours",
+    "wind_max_kmh",
+    "wind_mean_kmh",
+    "humidity_mean_pct",
+    "pressure_mean_hpa",
+    "weather_code",
+    "weather_source",
+    "weather_summary",
+    "is_rainy_day",
+    "is_heavy_rain_day",
+    "is_hot_day",
+    "is_cold_day",
+    "is_bad_weather_day",
+    "events_total_count",
+    "events_high_impact_count",
+    "events_estimated_attendance_sum",
+    "events_unknown_attendance_count",
+    "events_near_metro_count",
+    "events_city_center_count",
+    "events_culture_count",
+    "events_sports_count",
+    "events_congress_count",
+    "events_university_count",
+    "events_religious_count",
+    "events_other_count",
+    "events_weighted_impact_sum",
+    "max_event_impact_score",
+    "has_major_event",
+    "has_multiple_major_events",
+    "events_geocoded_count",
+    "events_unique_venue_count",
+]
+conditional_feature_columns = [
+    "temp_min_c",
+    "temp_max_c",
+    "temp_mean_c",
+    "precip_mm",
+    "rain_hours",
+    "wind_max_kmh",
+    "wind_mean_kmh",
+    "humidity_mean_pct",
+    "pressure_mean_hpa",
+    "weather_code",
+    "weather_source",
+    "weather_summary",
+    "is_rainy_day",
+    "is_heavy_rain_day",
+    "is_hot_day",
+    "is_cold_day",
+    "is_bad_weather_day",
+    "events_total_count",
+    "events_high_impact_count",
+    "events_estimated_attendance_sum",
+    "events_unknown_attendance_count",
+    "events_near_metro_count",
+    "events_city_center_count",
+    "events_culture_count",
+    "events_sports_count",
+    "events_congress_count",
+    "events_university_count",
+    "events_religious_count",
+    "events_other_count",
+    "events_weighted_impact_sum",
+    "max_event_impact_score",
+    "has_major_event",
+    "has_multiple_major_events",
+    "events_geocoded_count",
+    "events_unique_venue_count",
+]
+support_columns = [
+    "external_features_run_id",
+    "first_trip_timestamp",
+    "last_trip_timestamp",
+    "raw_unique_equipment_count",
+    "raw_rows_with_estimated_time",
+    "raw_missing_money_fields_count",
+    "raw_missing_trip_fields_count",
+    "network_change_count",
+    "network_equipment_first_seen_count",
+    "network_equipment_last_seen_observed_count",
+    "network_line_station_first_seen_count",
+    "network_line_station_last_seen_observed_count",
+]
+excluded_from_direct_modeling = [
+    "fecha_validacion",
+    "cod_eq",
+    "tipo_validacion",
+    "tipo_titulo",
+    "id_tarjeta",
+    "num_tarjeta",
+    "dinero_deducido",
+    "saldo_restante",
+    "viajes_deducidos",
+    "fecha_validacion_hora_estimada",
+    "fecha_generacion",
+    "rango_desde",
+    "rango_hasta",
+    "dia",
+    "archivo_origen",
+    "_orden_manifest",
+    "date",
+    "external_features_run_id",
+    "n_validations",
+    "first_seen_date",
+    "last_seen_date",
+    "n_unique_equipment",
+    "n_unique_equipment_significant",
+    "n_validations_significant_equipment",
+    "significant_equipment_validation_share",
+    "station_observation_status",
+    "observed_span_days",
+]
+
+[modeling.execution]
+trip_aggregation_engine = "pyarrow_dataset_scanner"
+trip_aggregation_mode = "incremental_batches"
+trip_scanner_batch_size = 250000
+load_full_validation_rows_to_memory = false
+
+[modeling.service_day]
+timezone = "Europe/Madrid"
+policy = "natural_calendar_day"
+boundary_hour = 0
+boundary_minute = 0
+description = "En Fase 2A service_date coincide con la fecha natural local de fecha_validacion. No se reasignan viajes filtrados de madrugada al dia operativo anterior."
+
+[modeling.series]
+series_grain = "line_station"
+series_id_column = "series_id"
+natural_key_columns = ["linea", "station_join_key"]
+series_id_format = "{station_abbrev} with line suffix only for shared stations, e.g. TOR, GDL2"
+series_label_columns = ["linea", "estacion", "station_display_name", "station_reference_label"]
+why_station_alone_is_not_stable = "Perchel y Guadalmedina aparecen en ambas lineas, asi que estacion sola no identifica una serie unica."
+why_cod_eq_is_not_stable = "cod_eq representa equipos, no series de demanda, y en los maestros hay reutilizacion y codigos sospechosos."
+
+[modeling.future_granular_dataset]
+name = "future_station_interval_model_base"
+status = "planned"
+source_dataset = "validations_filtered_to_trips"
+prediction_unit = "series_id + interval_start"
+series_id_column = "series_id"
+time_key_column = "interval_start"
+example_interval = "15min"
+description = "Capa futura prevista para modelado por estacion e intervalo temporal, sin cerrar aun la arquitectura final del proyecto."
+
+[modeling.joins.trips_to_external_daily_features]
+left_dataset = "station_daily_trips"
+right_dataset = "external_daily_features"
+left_keys = ["service_date"]
+right_keys = ["date"]
+join_type = "left"
+required = true
+right_unique = true
+missing_policy = "error"
+
+[modeling.joins.station_daily_to_stations_master]
+left_dataset = "station_daily_trips"
+right_dataset = "stations_master"
+left_keys = ["linea", "estacion"]
+right_keys = ["linea", "estacion"]
+join_type = "left"
+required = true
+right_unique = true
+missing_policy = "error"
+
+[modeling.joins.station_daily_to_lines_master]
+left_dataset = "station_daily_trips"
+right_dataset = "lines_master"
+left_keys = ["linea"]
+right_keys = ["linea"]
+join_type = "left"
+required = false
+right_unique = true
+missing_policy = "warn"
+
+[modeling.joins.station_daily_to_network_changes]
+left_dataset = "station_daily_trips"
+right_dataset = "network_changes_daily"
+left_keys = ["service_date", "linea", "estacion"]
+right_keys = ["service_date", "linea", "estacion"]
+join_type = "left"
+required = false
+right_unique = true
+missing_policy = "fill_zero"
+
+[modeling.joins.station_daily_to_equipment_master]
+left_dataset = "station_daily_trips"
+right_dataset = "equipment_master"
+left_keys = ["linea", "estacion"]
+right_keys = ["linea", "estacion"]
+join_type = "left"
+required = false
+right_unique = false
+missing_policy = "skip"
+pre_aggregation = "station_level_summary_required_before_join"
+
+[operations]
+namespace = "operations"
+inspection_match_normalization = "lower_ascii_trimmed"
+service_day_rollover_threshold = "05:00:00"
+
+[operations.naming]
+station_abbrev_corrections = { PBI = "PBL" }
+
+[operations.sources.services_history]
+path_ref = "raw_data_dir"
+file_glob = "Servicios Hist*.xlsx"
+sheet_name = "Resumen_Servicios"
+granularity = "daily_network"
+required_columns = [
+    "servicio",
+    "archivo_xml_planificado",
+    "archivo_xml_usado",
+    "fecha",
+    "Inicio Serv Comercial",
+    "Fin L1 Serv Comercial",
+    "Fin L2 Serv Comercial",
+    "Descripcion Servicio",
+    "evento",
+    "Demanda extraordinaria",
+    "Comentarios",
+    "Comentarios para ING",
+]
+optional_columns = []
+unique_key = ["fecha"]
+
+[operations.sources.events_calendar]
+path_ref = "raw_data_dir"
+file_glob = "Calendario_Eventos.xlsx"
+sheet_name = "Eventos"
+granularity = "event"
+required_columns = [
+    "ID",
+    "Titulo",
+    "Categoria",
+    "Hora Inicio",
+    "Hora Fin",
+    "Ubicacion",
+    "Aforo",
+    "Url Detalle Evento",
+    "Comentarios",
+    "StartDay",
+    "EndDay",
+]
+optional_columns = ["Tipo de elemento", "Ruta de acceso"]
+unique_key = ["ID"]
+
+[operations.sources.event_locations]
+path_ref = "raw_data_dir"
+file_glob = "Calendario_Eventos.xlsx"
+sheet_name = "Ubicaciones"
+granularity = "location_station_matrix"
+required_columns = ["Ubicaciones"]
+optional_columns = []
+unique_key = ["Ubicaciones"]
+
+[operations.sources.incidents_history]
+path_ref = "raw_data_dir"
+file_glob = "Incidencias_Historico.xlsx"
+sheet_name = "Incidencias"
+granularity = "incident"
+required_columns = [
+    "ID",
+    "Tipo Agente",
+    "Tipo Incidencia",
+    "Incidencias asociadas",
+    "Grupo",
+    "Subgrupo",
+    "Familia",
+    "Codigo",
+    "Fecha Origen Inc",
+    "Hora Inicio",
+    "Hora Fin",
+    "Localizacion",
+    "Sublocalizacion",
+    "Tipo Localizacion",
+    "Descripcion",
+    "Tiempo de retraso (en minutos)",
+    "Afeccion al servicio",
+    "Sistema",
+    "Subsistema",
+]
+optional_columns = []
+unique_key = ["ID"]
+
+[operations.outputs.services_history_daily]
+path_ref = "interim_operations_dir"
+granularity = "daily_network"
+required_columns = [
+    "service_date",
+    "service_name_raw",
+    "commercial_start_time",
+    "line_1_end_time",
+    "line_2_end_time",
+    "commercial_end_time_effective",
+]
+optional_columns = [
+    "planned_service_xml_name",
+    "used_service_xml_name",
+    "planned_service_code",
+    "used_service_code",
+    "used_service_override_flag",
+    "service_description",
+    "event_label",
+    "extraordinary_demand",
+    "comments",
+    "comments_for_ing",
+]
+unique_key = ["service_date"]
+
+[operations.outputs.services_line_daily]
+path_ref = "processed_operations_dir"
+granularity = "daily_line"
+required_columns = [
+    "service_date",
+    "linea",
+    "commercial_start_time",
+    "line_end_time",
+]
+optional_columns = [
+    "line_end_day_offset",
+    "service_name_raw",
+    "planned_service_xml_name",
+    "used_service_xml_name",
+]
+unique_key = ["service_date", "linea"]
+
+[operations.outputs.events_normalized]
+path_ref = "interim_operations_dir"
+granularity = "event"
+required_columns = [
+    "event_id",
+    "title",
+    "category",
+    "start_ts",
+    "end_ts",
+    "location_raw",
+]
+optional_columns = [
+    "location_key",
+    "duration_minutes",
+    "attendance_estimated",
+    "attendance_parse_status",
+    "comments",
+    "detail_url",
+]
+unique_key = ["event_id"]
+
+[operations.outputs.events_station_impact]
+path_ref = "processed_operations_dir"
+granularity = "event_station"
+required_columns = [
+    "event_id",
+    "station_abbrev",
+    "station_join_key",
+    "location_raw",
+]
+optional_columns = [
+    "station_display_name",
+    "location_mapping_confidence",
+    "non_station_codes_present",
+]
+unique_key = ["event_id", "station_abbrev"]
+
+[operations.outputs.events_station_daily]
+path_ref = "processed_operations_dir"
+granularity = "daily_station"
+required_columns = [
+    "service_date",
+    "station_abbrev",
+    "station_join_key",
+    "active_event_count",
+]
+optional_columns = [
+    "starting_event_count",
+    "ending_event_count",
+    "starting_estimated_attendance_sum",
+    "high_impact_starting_event_count",
+]
+unique_key = ["service_date", "station_abbrev"]
+
+[operations.outputs.events_phase2a_series_daily]
+path_ref = "processed_operations_dir"
+granularity = "daily_line_station"
+required_columns = [
+    "service_date",
+    "linea",
+    "estacion",
+    "station_join_key",
+    "active_event_count",
+]
+optional_columns = [
+    "station_abbrev",
+    "station_display_name",
+    "station_group_line_count",
+    "shared_station_group_propagated",
+    "propagation_rule",
+    "deduplication_weight",
+    "active_event_count_deduplicated",
+    "starting_event_count",
+    "starting_event_count_deduplicated",
+    "ending_event_count",
+    "ending_event_count_deduplicated",
+    "starting_estimated_attendance_sum",
+    "starting_estimated_attendance_sum_deduplicated",
+    "starting_unknown_attendance_count",
+    "starting_unknown_attendance_count_deduplicated",
+    "high_impact_starting_event_count",
+    "high_impact_starting_event_count_deduplicated",
+]
+unique_key = ["service_date", "linea", "station_join_key"]
+
+[operations.outputs.incidents_normalized]
+path_ref = "interim_operations_dir"
+granularity = "incident"
+required_columns = [
+    "incident_id",
+    "incident_start_ts",
+    "incident_end_ts",
+    "impact_scope",
+]
+optional_columns = [
+    "mapped_linea",
+    "mapped_station_abbrev",
+    "mapped_station_join_key",
+    "mapping_confidence",
+    "delay_minutes",
+    "service_affectation",
+]
+unique_key = ["incident_id"]
+
+[operations.outputs.incidents_daily]
+path_ref = "processed_operations_dir"
+granularity = "daily_scope"
+required_columns = [
+    "service_date",
+    "impact_scope",
+    "incident_count",
+]
+optional_columns = [
+    "mapped_linea",
+    "mapped_station_abbrev",
+    "mapped_station_join_key",
+    "delay_minutes_sum",
+    "delay_minutes_max",
+]
+unique_key = ["service_date", "impact_scope", "mapped_linea", "mapped_station_join_key"]
+
+[operations.outputs.events_mapping_report]
+path_ref = "operations_reports_dir"
+granularity = "report"
+required_columns = [
+    "location_raw",
+    "location_key",
+    "station_codes_raw",
+    "station_codes_canonical",
+    "station_mapping_count",
+]
+optional_columns = [
+    "exact_match_found",
+    "normalized_match_found",
+    "non_station_codes_present",
+    "notes",
+]
+unique_key = ["location_raw"]
+
+[operations.outputs.incidents_mapping_report]
+path_ref = "operations_reports_dir"
+granularity = "report"
+required_columns = [
+    "location_raw",
+    "impact_scope",
+    "incident_count",
+]
+optional_columns = [
+    "station_prefix_raw",
+    "mapped_station_abbrev",
+    "mapped_linea",
+    "mapping_confidence",
+]
+unique_key = ["location_raw", "impact_scope", "mapped_station_abbrev", "mapped_linea"]
+
+[operations.outputs.inspection_summary]
+path_ref = "operations_reports_dir"
+granularity = "report"
+required_columns = [
+    "source_name",
+    "sheet_name",
+    "row_count",
+    "column_count",
+]
+optional_columns = [
+    "date_min",
+    "date_max",
+    "duplicate_count",
+    "notes",
+]
+unique_key = ["source_name", "sheet_name"]
+
+[operations.events]
+normalize_location_matching = true
+location_code_aliases = { PBI = "PBL" }
+non_station_codes = ["TyC"]
+
+[operations.events.phase2a_propagation]
+target_granularity = "service_date + linea + estacion"
+source_granularity = "service_date + station_join_key"
+shared_station_rule = "broadcast_shared_station_group_to_each_member_line_series"
+duplicate_guard_rule = "keep canonical station_group layer as source of truth and expose deduplicated weighted metrics only for re-aggregation control"
+
+[operations.incidents]
+station_code_aliases = { PBI = "PBL" }
+line_location_values = ["LINEA 1", "LINEA 2"]
+depot_keywords = ["COCHERAS", "TALLERES", "RECINTO CMM"]
+crossing_keywords = ["CRUCE"]
+network_keywords = ["RED DE METRO DE MALAGA", "LINEA 1 Y 2"]
+
+[daily_modeling]
+target_column = "trip_count_target"
+series_id_column = "series_id"
+forecast_origin_date_column = "forecast_origin_date"
+target_date_column = "target_date"
+target_variant_primary = "strict_available"
+available_variants = ["strict_available", "forecastable_scenario"]
+horizons = [1, 7]
+scenario_start_date = "2023-03-08"
+sparse_series_ids = ["GDL2", "PCH2"]
+sparse_exclusion_rel_wape_threshold = 0.02
+line_wape_guardrail_threshold = 0.01
+random_state = 42
+
+[daily_modeling.splits]
+test_window_days = 180
+validation_window_days = 56
+validation_folds = 3
+min_history_days = 365
+
+[daily_modeling.features]
+calendar_feature_columns = [
+    "calendar_year",
+    "calendar_month",
+    "calendar_day",
+    "calendar_quarter",
+    "calendar_week_of_year",
+    "calendar_day_of_year",
+    "calendar_day_of_week",
+    "calendar_day_of_week_name",
+    "calendar_is_weekend",
+    "calendar_is_holiday",
+    "calendar_holiday_name",
+    "calendar_holiday_scope",
+    "calendar_is_holiday_mmo",
+    "calendar_is_preholiday",
+    "calendar_is_postholiday",
+    "calendar_days_to_next_holiday",
+    "calendar_days_since_prev_holiday",
+    "calendar_is_bridge_candidate",
+    "calendar_is_month_start",
+    "calendar_is_month_end",
+]
+static_feature_columns = [
+    "series_id",
+    "linea",
+    "zone",
+    "station_group",
+    "network_order",
+    "is_interchange_candidate",
+]
+lag_days = [1, 7, 14, 28]
+rolling_windows = [7, 28]
+weather_feature_columns = [
+    "weather_temp_min_c",
+    "weather_temp_max_c",
+    "weather_temp_mean_c",
+    "weather_precip_mm",
+    "weather_rain_hours",
+    "weather_wind_max_kmh",
+    "weather_wind_mean_kmh",
+    "weather_humidity_mean_pct",
+    "weather_pressure_mean_hpa",
+    "weather_code",
+    "weather_is_rainy_day",
+    "weather_is_heavy_rain_day",
+    "weather_is_hot_day",
+    "weather_is_cold_day",
+    "weather_is_bad_weather_day",
+]
+service_feature_columns = [
+    "service_planned_start_minutes",
+    "service_line_end_minutes",
+    "service_line_end_day_offset",
+    "service_duration_minutes",
+    "service_has_planned_xml",
+    "service_planned_code",
+]
+event_feature_columns = [
+    "event_active_count",
+    "event_starting_count",
+    "event_ending_count",
+    "event_starting_estimated_attendance_sum",
+    "event_starting_unknown_attendance_count",
+    "event_high_impact_starting_count",
+]
+excluded_external_event_columns = [
+    "events_total_count",
+    "events_high_impact_count",
+    "events_estimated_attendance_sum",
+    "events_unknown_attendance_count",
+    "events_near_metro_count",
+    "events_city_center_count",
+    "events_culture_count",
+    "events_sports_count",
+    "events_congress_count",
+    "events_university_count",
+    "events_religious_count",
+    "events_other_count",
+    "events_weighted_impact_sum",
+    "max_event_impact_score",
+    "has_major_event",
+    "has_multiple_major_events",
+    "events_geocoded_count",
+    "events_unique_venue_count",
+]
+excluded_master_leakage_columns = [
+    "n_validations",
+    "first_seen_date",
+    "last_seen_date",
+    "n_unique_equipment",
+    "n_unique_equipment_significant",
+    "n_validations_significant_equipment",
+    "significant_equipment_validation_share",
+    "station_observation_status",
+    "observed_span_days",
+]
+
+[daily_modeling.model.tabular]
+loss = "poisson"
+learning_rate = 0.06973687
+max_iter = 374
+max_depth = 7
+min_samples_leaf = 22
+l2_regularization = 0.0141275
+max_bins = 255
+early_stopping = true
+
+[daily_modeling.mlflow]
+experiment_name = "daily-demand-modeling"
+log_models = true

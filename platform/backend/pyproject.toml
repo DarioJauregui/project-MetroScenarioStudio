@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "metro-scenario-studio"
+version = "0.1.0"
+description = "MVP local para prediccion de demanda y simulacion de escenarios de Metro de Malaga"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115,<1.0",
+    "openpyxl>=3.1,<4.0",
+    "pandas>=2.2,<4.0",
+    "pydantic>=2.8,<3.0",
+    "pyarrow>=15,<24",
+    "python-multipart>=0.0.9,<1.0",
+    "scikit-learn>=1.5,<2.0",
+    "uvicorn[standard]>=0.30,<1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "httpx>=0.27,<1.0",
+    "pytest>=8.0,<9.0",
+    "ruff>=0.3.0",
+]
+
+[tool.setuptools]
+package-dir = {"" = "."}
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+testpaths = ["tests"]
+pythonpath = ["."]

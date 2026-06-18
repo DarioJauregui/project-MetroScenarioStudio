@@ -1,0 +1,180 @@
+{
+  "finished_at": "2026-06-18T06:56:31.612746+00:00",
+  "global_status": "warning",
+  "schema_version": 1,
+  "started_at": "2026-06-18T06:25:52.343065+00:00",
+  "steps": [
+    {
+      "artifacts": {
+        "calendar_events_excel": "C:\\Users\\d.jauregui\\Desktop\\MetroProyectos\\2026_DemandaConIA\\Desarrollo\\project-MetroScenarioStudio\\data\\raw\\Calendario_Eventos.xlsx"
+      },
+      "critical": false,
+      "duration_seconds": 2.498124,
+      "finished_at": "2026-06-18T06:25:54.844715+00:00",
+      "message": null,
+      "metadata": {},
+      "name": "ingest_events_calendar",
+      "started_at": "2026-06-18T06:25:52.346591+00:00",
+      "status": "success"
+    },
+    {
+      "artifacts": {
+        "external_daily_features": "C:\\Users\\d.jauregui\\Desktop\\MetroProyectos\\2026_DemandaConIA\\Desarrollo\\project-MetroScenarioStudio\\data\\processed\\external_features\\external_daily_features.parquet"
+      },
+      "critical": false,
+      "duration_seconds": 1.692143,
+      "finished_at": "2026-06-18T06:25:56.536858+00:00",
+      "message": null,
+      "metadata": {},
+      "name": "ingest_weather",
+      "started_at": "2026-06-18T06:25:54.844715+00:00",
+      "status": "success"
+    },
+    {
+      "artifacts": {},
+      "critical": false,
+      "duration_seconds": 0.0,
+      "finished_at": "2026-06-18T06:25:56.542470+00:00",
+      "message": null,
+      "metadata": {},
+      "name": "ingest_historical_demand",
+      "started_at": "2026-06-18T06:25:56.542470+00:00",
+      "status": "failed"
+    },
+    {
+      "artifacts": {
+        "consolidated_validations": "C:\\Users\\d.jauregui\\Desktop\\MetroProyectos\\2026_DemandaConIA\\Desarrollo\\project-MetroScenarioStudio\\data\\processed\\validaciones\\validaciones_consolidado.parquet",
+        "latest_run": "C:\\Users\\d.jauregui\\Desktop\\MetroProyectos\\2026_DemandaConIA\\Desarrollo\\project-MetroScenarioStudio\\data\\raw\\validaciones\\latest_run.txt"
+      },
+      "critical": true,
+      "duration_seconds": 422.861251,
+      "finished_at": "2026-06-18T06:33:12.009548+00:00",
+      "message": null,
+      "metadata": {
+        "candidate_files": 806,
+        "days_to_process": 2,
+        "processed_days": [
+          "2026-06-16",
+          "2026-06-17"
+        ]
+      },
+      "name": "consolidate_validations",
+      "started_at": "2026-06-18T06:26:09.148297+00:00",
+      "status": "success"
+    },
+    {
+      "artifacts": {},
+      "critical": false,
+      "duration_seconds": 1.300099,
+      "finished_at": "2026-06-18T06:33:13.321883+00:00",
+      "message": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"scripts/build_operational_datasets.py\", line 21, in <module>\n    main()\n  File \"scripts/build_operational_datasets.py\", line 16, in main\n    artifacts = build_operational_datasets(settings)\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\d.jauregui\\Desktop\\MetroProyectos\\2026_DemandaConIA\\Desarrollo\\project-MetroScenarioStudio\\ml_pipeline\\src\\metro_demand_models\\data\\operations\\pipeline.py\", line 131, in build_operational_datasets\n    source_frames, source_paths = _load_raw_sources(resolved_settings, workbook_contracts)\n                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\d.jauregui\\Desktop\\MetroProyectos\\2026_DemandaConIA\\Desarrollo\\project-MetroScenarioStudio\\ml_pipeline\\src\\metro_demand_models\\data\\operations\\pipeline.py\", line 248, in _load_raw_sources\n    workbook_path = resolve_workbook_path(settings, contract)\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\d.jauregui\\Desktop\\MetroProyectos\\2026_DemandaConIA\\Desarrollo\\project-MetroScenarioStudio\\ml_pipeline\\src\\metro_demand_models\\data\\operations\\common.py\", line 76, in resolve_workbook_path\n    raise FileNotFoundError(\nFileNotFoundError: No workbook found for pattern 'Servicios Hist*.xlsx' in 'C:\\Users\\d.jauregui\\Desktop\\MetroProyectos\\2026_DemandaConIA\\Desarrollo\\project-MetroScenarioStudio\\data\\raw'.",
+      "metadata": {},
+      "name": "model:scripts/build_operational_datasets.py",
+      "started_at": "2026-06-18T06:33:12.021784+00:00",
+      "status": "failed"
+    },
+    {
+      "artifacts": {},
+      "critical": true,
+      "duration_seconds": 533.779655,
+      "finished_at": "2026-06-18T06:42:07.101538+00:00",
+      "message": null,
+      "metadata": {
+        "stdout_tail": []
+      },
+      "name": "model:scripts/build_daily_training_dataset.py",
+      "started_at": "2026-06-18T06:33:13.321883+00:00",
+      "status": "success"
+    },
+    {
+      "artifacts": {},
+      "critical": true,
+      "duration_seconds": 520.567262,
+      "finished_at": "2026-06-18T06:50:47.668800+00:00",
+      "message": null,
+      "metadata": {
+        "stdout_tail": []
+      },
+      "name": "model:scripts/train.py",
+      "started_at": "2026-06-18T06:42:07.101538+00:00",
+      "status": "success"
+    },
+    {
+      "artifacts": {},
+      "critical": false,
+      "duration_seconds": 1.75757,
+      "finished_at": "2026-06-18T06:50:49.426370+00:00",
+      "message": null,
+      "metadata": {
+        "stdout_tail": []
+      },
+      "name": "model:scripts/evaluate.py",
+      "started_at": "2026-06-18T06:50:47.668800+00:00",
+      "status": "success"
+    },
+    {
+      "artifacts": {},
+      "critical": false,
+      "duration_seconds": 332.525072,
+      "finished_at": "2026-06-18T06:56:21.951442+00:00",
+      "message": "",
+      "metadata": {},
+      "name": "model:scripts/generate_daily_supervision_artifacts.py",
+      "started_at": "2026-06-18T06:50:49.426370+00:00",
+      "status": "failed"
+    },
+    {
+      "artifacts": {},
+      "critical": false,
+      "duration_seconds": 2.666195,
+      "finished_at": "2026-06-18T06:56:24.617637+00:00",
+      "message": null,
+      "metadata": {
+        "stdout_tail": []
+      },
+      "name": "model:scripts/generate_special_day_error_analysis.py",
+      "started_at": "2026-06-18T06:56:21.951442+00:00",
+      "status": "success"
+    },
+    {
+      "artifacts": {},
+      "critical": false,
+      "duration_seconds": 4.497481,
+      "finished_at": "2026-06-18T06:56:29.115118+00:00",
+      "message": null,
+      "metadata": {
+        "stdout_tail": []
+      },
+      "name": "model:scripts/run_daily_inference_smoke.py",
+      "started_at": "2026-06-18T06:56:24.617637+00:00",
+      "status": "success"
+    },
+    {
+      "artifacts": {},
+      "critical": false,
+      "duration_seconds": 2.497628,
+      "finished_at": "2026-06-18T06:56:31.612746+00:00",
+      "message": null,
+      "metadata": {
+        "stdout_tail": []
+      },
+      "name": "model:scripts/run_drift_monitoring.py",
+      "started_at": "2026-06-18T06:56:29.115118+00:00",
+      "status": "success"
+    },
+    {
+      "artifacts": {
+        "forecastable_scenario_model": "C:\\Users\\d.jauregui\\Desktop\\MetroProyectos\\2026_DemandaConIA\\Desarrollo\\project-MetroScenarioStudio\\ml_pipeline\\artifacts\\models\\daily_modeling\\tabular_hgbr__forecastable_scenario__all_series__h1.pkl",
+        "strict_available_model": "C:\\Users\\d.jauregui\\Desktop\\MetroProyectos\\2026_DemandaConIA\\Desarrollo\\project-MetroScenarioStudio\\ml_pipeline\\artifacts\\models\\daily_modeling\\tabular_hgbr__strict_available__all_series__h1.pkl"
+      },
+      "critical": false,
+      "duration_seconds": 0.0,
+      "finished_at": "2026-06-18T06:56:31.612746+00:00",
+      "message": null,
+      "metadata": {},
+      "name": "promoted_model_check",
+      "started_at": "2026-06-18T06:56:31.612746+00:00",
+      "status": "success"
+    }
+  ]
+}

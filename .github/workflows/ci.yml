@@ -1,0 +1,83 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint-and-format:
+    name: Lint & Format Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Ruff
+        run: pip install ruff
+
+      - name: Run Ruff Lint
+        run: ruff check .
+
+      - name: Run Ruff Format Check
+        run: ruff format --check .
+
+  python-tests:
+    name: Run Python Tests (ML Pipeline & Backend API)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential
+
+      - name: Install ML Pipeline Package
+        run: |
+          pip install --upgrade pip
+          pip install -e "ml_pipeline[dev]"
+
+      - name: Run ML Pipeline Tests
+        run: pytest ml_pipeline/tests
+
+      - name: Install Backend API Package
+        run: pip install -e "platform/backend[dev]"
+
+      - name: Run Backend API Tests
+        run: pytest platform/backend/tests
+
+  frontend-build:
+    name: Build Frontend (Vite & React)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: platform/frontend/package-lock.json
+
+      - name: Install Frontend Dependencies
+        working-directory: platform/frontend
+        run: npm ci
+
+      - name: Build Frontend Application
+        working-directory: platform/frontend
+        run: npm run build

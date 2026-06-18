@@ -1,0 +1,56 @@
+# Copia este archivo a conf/local/config.toml y ajusta solo lo necesario.
+
+[paths]
+# Ejemplo:
+# raw_data_dir = "D:/metro/data/raw"
+# processed_data_dir = "D:/metro/data/processed"
+# interim_operations_dir = "D:/metro/data/interim/operations"
+# processed_operations_dir = "D:/metro/data/processed/operations"
+# operations_reports_dir = "D:/metro/data/validation/reports/operations"
+# daily_modeling_dir = "D:/metro/artifacts/daily_modeling"
+# daily_training_data_dir = "D:/metro/artifacts/daily_modeling/training_data"
+# daily_modeling_predictions_dir = "D:/metro/artifacts/daily_modeling/predictions"
+# daily_modeling_metrics_dir = "D:/metro/artifacts/daily_modeling/metrics"
+# daily_modeling_reports_dir = "D:/metro/artifacts/daily_modeling/reports"
+# daily_modeling_visualizations_dir = "D:/metro/artifacts/daily_modeling/visualizations"
+# daily_modeling_inference_dir = "D:/metro/artifacts/daily_modeling/inference_smoke"
+# daily_modeling_models_dir = "D:/metro/artifacts/models/daily_modeling"
+# processed_validations_file = "D:/metro/data/processed/validaciones/validaciones_consolidado.parquet"
+# processed_external_daily_features_file = "D:/metro/data/processed/external_features/external_daily_features.parquet"
+
+[mlflow]
+# Ejemplo:
+# default_experiment = "local-sandbox"
+# ui_port = 5001
+
+[modeling.service_day]
+# Ejemplo para un dia operativo que empiece a las 03:00:
+# boundary_hour = 3
+
+[modeling.execution]
+# Ejemplo si hace falta reducir memoria:
+# trip_scanner_batch_size = 100000
+
+[operations.events]
+# Ejemplo si aparece un alias nuevo de estacion en la matriz de ubicaciones:
+# location_code_aliases = { PBI = "PBL", NUEVO = "COD" }
+
+[operations.incidents]
+# Ejemplo si aparece un alias nuevo en localizacion:
+# station_code_aliases = { PBI = "PBL", NUEVO = "COD" }
+
+[operations.naming]
+# Ejemplo si un master local trae una abreviatura legacy y quieres corregirla en la capa operativa:
+# station_abbrev_corrections = { PBI = "PBL" }
+
+[daily_modeling]
+# Ejemplo para probar otro arranque de la variante con escenario:
+# scenario_start_date = "2024-01-01"
+
+[daily_modeling.splits]
+# Ejemplo si quieres un holdout mas corto para pruebas locales:
+# test_window_days = 90
+
+[daily_modeling.mlflow]
+# Ejemplo para un experimento local alternativo:
+# experiment_name = "daily-demand-modeling-local"

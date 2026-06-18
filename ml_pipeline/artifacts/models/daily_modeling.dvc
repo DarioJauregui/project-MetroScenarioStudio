@@ -1,0 +1,6 @@
+outs:
+- md5: 7328d30ba5b7f530020d82cab4e4ccd7.dir
+  size: 10378949
+  nfiles: 8
+  hash: md5
+  path: daily_modeling

@@ -1,0 +1,5 @@
+outs:
+- md5: 5c2813afb01473543e5dd11d64a2e790
+  size: 158243
+  hash: md5
+  path: external_daily_features.parquet

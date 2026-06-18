@@ -1,0 +1,40 @@
+schema: '2.0'
+stages:
+  daily_pipeline:
+    cmd: .\.venv\Scripts\python.exe pipelines\run_pipeline.py
+    deps:
+    - path: data\external\datos_externos
+      hash: md5
+      md5: 2cc984a1a568ab1744939659f1da7fa4.dir
+      size: 252466
+      nfiles: 17
+    - path: ml_pipeline\conf\base\config.toml
+      hash: md5
+      md5: 84af2ae69659394f0eb5bda4692b9f0a
+      size: 26945
+    - path: ml_pipeline\src
+      hash: md5
+      md5: 142f8b3a0c89b8c6bd01de7eb0557d72.dir
+      size: 315542
+      nfiles: 41
+    - path: pipelines\path_resolution.py
+      hash: md5
+      md5: ec5d5a630d2aecb03dd8ee9349ce4fb3
+      size: 1132
+    - path: pipelines\run_pipeline.py
+      hash: md5
+      md5: 00f89aef1db622ae577b6df4a8652cf1
+      size: 50414
+    - path: pipelines\run_summary.py
+      hash: md5
+      md5: 618b64b52c38bea869eac7e9ccee4ba9
+      size: 3146
+    outs:
+    - path: ml_pipeline\artifacts\monitoring\drift_metrics.json
+      hash: md5
+      md5: cf4940e4989688aba7291a87f8eca4de
+      size: 212
+    - path: ml_pipeline\artifacts\monitoring\pipeline_run_summary.json
+      hash: md5
+      md5: cbb6c9d9f9fa24ec1a17c4fad7634688
+      size: 8006

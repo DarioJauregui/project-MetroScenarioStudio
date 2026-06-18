@@ -1,0 +1,5 @@
+outs:
+- md5: 925501030ab58ab371462f1dbc16bfc5
+  size: 3682704915
+  hash: md5
+  path: validaciones_consolidado.parquet

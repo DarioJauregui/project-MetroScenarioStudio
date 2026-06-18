@@ -1,0 +1,5 @@
+outs:
+- md5: 2bdc35b3c6e7c8c3dd8a0beb534be8a4
+  size: 10175
+  hash: md5
+  path: stations_master.parquet

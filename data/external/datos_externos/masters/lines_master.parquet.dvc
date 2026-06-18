@@ -1,0 +1,5 @@
+outs:
+- md5: d4404018316ff96fdfc3f202404ef2fa
+  size: 2761
+  hash: md5
+  path: lines_master.parquet

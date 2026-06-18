@@ -1,0 +1,17 @@
+target-version = "py312"
+line-length = 120
+
+extend-exclude = [
+    ".venv",
+    "data",
+    "ml_pipeline/artifacts",
+    "platform/frontend/dist",
+    "platform/frontend/node_modules",
+]
+
+[lint]
+select = ["E", "F"]
+ignore = ["E501"]
+
+[lint.per-file-ignores]
+"ml_pipeline/scripts/*.py" = ["E402"]

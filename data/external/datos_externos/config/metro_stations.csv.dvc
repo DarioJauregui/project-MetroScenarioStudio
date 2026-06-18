@@ -1,0 +1,5 @@
+outs:
+- md5: cf59bd48371da38b148f5926dee3773a
+  size: 2204
+  hash: md5
+  path: metro_stations.csv

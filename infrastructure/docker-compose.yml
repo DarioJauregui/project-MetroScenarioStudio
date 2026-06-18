@@ -1,0 +1,33 @@
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: platform/backend/Dockerfile
+    container_name: metro-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - backend-storage:/app/platform/backend/storage
+      - ../data:/app/data:ro
+      # Mount ml_pipeline read-only to dynamically pick up model retraining and pipeline artifacts
+      - ../ml_pipeline:/app/ml_pipeline:ro
+    environment:
+      - MSS_ENVIRONMENT=production
+      - MSS_STORAGE_DIR=/app/platform/backend/storage
+      - MSS_DATA_ROOT=/app/data
+      - MSS_METRO_DEMAND_MODELS_ROOT=/app/ml_pipeline
+    restart: always
+
+  frontend:
+    build:
+      context: ../platform/frontend
+      dockerfile: Dockerfile
+    container_name: metro-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: always
+
+volumes:
+  backend-storage:

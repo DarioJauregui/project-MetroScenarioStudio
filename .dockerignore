@@ -1,0 +1,38 @@
+# Ignore Git and DVC directories
+.git/
+.dvc/
+.dvcignore
+.gitignore
+
+# Ignore Python virtual environments and caches
+.venv/
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/.pytest_cache/
+**/.ruff_cache/
+**/*.egg-info/
+**/build/
+**/dist/
+
+# Ignore Node.js packages and build outputs
+**/node_modules/
+**/dist/
+**/.eslintcache
+**/tsconfig.tsbuildinfo
+
+# Ignore local database and storage files
+data/
+ml_pipeline/artifacts/
+ml_pipeline/mlruns/
+ml_pipeline/docs/05_memory_support/
+ml_pipeline/ml_pipeline/
+pipelines/.env
+pipelines/pipeline.log
+platform/backend/storage/
+**/storage/
+**/*.db
+**/*.log
+**/*.tmp
+**/mlruns/

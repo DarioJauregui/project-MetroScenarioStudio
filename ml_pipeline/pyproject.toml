@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "metro-demand-models"
+version = "0.1.0"
+description = "Base reproducible para modelos de prediccion de demanda de Metro de Malaga"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "numpy>=1.26,<3.0",
+    "pandas>=2.2,<3.0",
+    "pyarrow>=16.0,<21.0",
+    "openpyxl>=3.1,<4.0",
+    "requests>=2.31,<3.0",
+    "pytz>=2024.1",
+    "scikit-learn>=1.5,<2.0",
+    "scipy>=1.13,<2.0",
+    "matplotlib>=3.8,<4.0",
+    "shap>=0.46,<1.0",
+    "mlflow>=2.14,<3.0",
+    "pandera>=0.19.0",
+    "msal>=1.28,<2.0",
+    "requests-negotiate-sspi>=0.5,<1.0; platform_system == 'Windows'",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0,<9.0",
+    "jupyterlab>=4.2,<5.0",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+testpaths = ["tests"]
