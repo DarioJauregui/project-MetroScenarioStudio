@@ -11,7 +11,7 @@ La carpeta `project-MetroScenarioStudio` es ahora la unidad de trabajo y es la u
 - `platform/frontend/`: aplicacion React/Vite.
 - `pipelines/`: orquestador diario local para refrescar datos, reentrenar y validar modelos.
 - `data/`: datos locales y punteros DVC para maestros pesados.
-- `infrastructure/`: Docker Compose local.
+- `infrastructure/`: Docker Compose local con backend, frontend, MLflow, Prometheus y Grafana.
 
 ## Instalacion Local
 
@@ -43,6 +43,16 @@ El backend lee eventos y meteorologia desde `data/` mediante `MSS_DATA_ROOT`. Po
 ```powershell
 $env:MSS_DATA_ROOT = "D:\metro\data"
 ```
+
+Para explicabilidad y lectura de comentarios what-if con un LLM local, el backend usa por defecto:
+
+```powershell
+$env:MSS_NLU_ENDPOINT = "http://127.0.0.1:1234/v1/chat/completions"
+$env:MSS_EXPLANATION_LLM_ENDPOINT = "http://127.0.0.1:1234/v1/chat/completions"
+$env:MSS_EXPLANATION_LLM_TIMEOUT_SECONDS = "900"
+```
+
+En Docker se usa `host.docker.internal` para que los contenedores lleguen al LLM que corre en la maquina host.
 
 Para parar procesos lanzados por el script:
 
@@ -113,6 +123,8 @@ La monitorizacion genera:
 
 El endpoint `/metrics` expone WAPE/SMAPE, drift, estado de monitorizacion, estado de ultima ejecucion del pipeline y edad de artefactos clave.
 
+La calidad de datos se valida en el pipeline con contratos tabulares de Pandera cuando aplica. No hay todavia un frontend especifico de catalogo/calidad de datos; los resultados se consultan en logs, artefactos del pipeline, MLflow, DVC, Prometheus y Grafana.
+
 ## Docker y Registry
 
 Construccion local:
@@ -143,6 +155,8 @@ URLs del stack Docker:
 - MLflow: `http://127.0.0.1:5000`
 
 Grafana arranca con el datasource `Prometheus` provisionado y el dashboard `Metro Scenario Studio MLOps`. Prometheus carga reglas de alerta basicas desde `infrastructure/prometheus/alerts.yml`.
+
+El frontend Docker actua como proxy Nginx hacia `/api/` y permite peticiones largas de explicabilidad hasta 900 segundos.
 
 Para etiquetar imagenes hacia un registry:
 
@@ -192,4 +206,4 @@ Flujo habitual:
 
 ## Limites de Esta Fase
 
-Esta fase deja el monorepo listo para uso local autonomo. Quedan como fase posterior: DVC remoto compartido, registry de modelos, despliegue corporativo, CI/CD de contenedores, orquestador productivo y alertas corporativas.
+Esta fase deja el monorepo listo para uso local autonomo. Quedan como fase posterior: DVC remoto compartido, registry corporativo de contenedores, promocion formal de modelos con MLflow Model Registry, despliegue corporativo, CI/CD de contenedores, orquestador productivo y alertas corporativas conectadas a canales reales.

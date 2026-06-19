@@ -47,7 +47,7 @@ class Settings(BaseModel):
     explanation_llm_enabled: bool = False
     explanation_llm_endpoint: str = "http://localhost:1234/v1/chat/completions"
     explanation_llm_model: str = "qwen3.6-35b-a3b"
-    explanation_llm_timeout_seconds: float = 200.0
+    explanation_llm_timeout_seconds: float = 900.0
     explanation_llm_max_tokens: int = 10000
     explanation_llm_temperature: float = 0.2
 
@@ -119,7 +119,7 @@ def get_settings() -> Settings:
             "http://localhost:1234/v1/chat/completions",
         ),
         explanation_llm_model=os.getenv("MSS_EXPLANATION_LLM_MODEL", "qwen3.6-35b-a3b"),
-        explanation_llm_timeout_seconds=float(os.getenv("MSS_EXPLANATION_LLM_TIMEOUT_SECONDS", "200")),
+        explanation_llm_timeout_seconds=float(os.getenv("MSS_EXPLANATION_LLM_TIMEOUT_SECONDS", "900")),
         explanation_llm_max_tokens=int(os.getenv("MSS_EXPLANATION_LLM_MAX_TOKENS", "10000")),
         explanation_llm_temperature=float(os.getenv("MSS_EXPLANATION_LLM_TEMPERATURE", "0.2")),
     )

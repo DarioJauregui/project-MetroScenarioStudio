@@ -112,6 +112,48 @@ def test_local_llm_client_can_send_generation_options_when_enabled(monkeypatch) 
     assert captured["body"]["stream"] is False
 
 
+def test_local_llm_client_uses_openai_chat_payload_for_v1_chat_completions(monkeypatch) -> None:
+    captured: dict[str, object] = {}
+
+    class FakeResponse:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return None
+
+        def read(self):
+            return b'{"choices":[{"message":{"content":"{}"}}]}'
+
+    def fake_urlopen(http_request: request.Request, timeout: float):
+        captured["timeout"] = timeout
+        captured["body"] = json.loads(http_request.data.decode("utf-8"))
+        return FakeResponse()
+
+    monkeypatch.setattr(request, "urlopen", fake_urlopen)
+    client = LocalLlmChatClient(
+        endpoint="http://localhost:1234/v1/chat/completions",
+        model="local-model",
+        timeout_seconds=7,
+        max_tokens=384,
+        temperature=0.1,
+    )
+
+    client.chat("system", "input")
+
+    assert captured["timeout"] == 7
+    assert captured["body"] == {
+        "model": "local-model",
+        "messages": [
+            {"role": "system", "content": "system"},
+            {"role": "user", "content": "/no_think\ninput"},
+        ],
+        "max_tokens": 384,
+        "temperature": 0.1,
+        "stream": False,
+    }
+
+
 def test_local_llm_client_extracts_lm_studio_output_content(monkeypatch) -> None:
     class FakeResponse:
         def __enter__(self):

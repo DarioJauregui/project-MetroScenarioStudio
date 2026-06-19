@@ -7,15 +7,21 @@ services:
     ports:
       - "8011:8000"
     volumes:
-      - backend-storage:/app/platform/backend/storage
+      - ../platform/backend/storage:/app/platform/backend/storage
       - ../data:/app/data:ro
       # Mount ml_pipeline read-only to dynamically pick up model retraining and pipeline artifacts
       - ../ml_pipeline:/app/ml_pipeline:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       - MSS_ENVIRONMENT=production
       - MSS_STORAGE_DIR=/app/platform/backend/storage
       - MSS_DATA_ROOT=/app/data
       - MSS_METRO_DEMAND_MODELS_ROOT=/app/ml_pipeline
+      - MSS_NLU_ENDPOINT=http://host.docker.internal:1234/v1/chat/completions
+      - MSS_EXPLANATION_LLM_ENABLED=true
+      - MSS_EXPLANATION_LLM_ENDPOINT=http://host.docker.internal:1234/v1/chat/completions
+      - MSS_EXPLANATION_LLM_TIMEOUT_SECONDS=900
     restart: always
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3).read()"]
@@ -95,6 +101,5 @@ services:
     restart: unless-stopped
 
 volumes:
-  backend-storage:
   prometheus-data:
   grafana-data:

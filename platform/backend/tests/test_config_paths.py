@@ -41,6 +41,14 @@ def test_get_settings_allows_historical_demand_csv_override(monkeypatch, tmp_pat
     assert settings.historical_demand_csv == csv_path
 
 
+def test_get_settings_defaults_to_long_explanation_timeout(monkeypatch) -> None:
+    monkeypatch.delenv("MSS_EXPLANATION_LLM_TIMEOUT_SECONDS", raising=False)
+
+    settings = get_settings()
+
+    assert settings.explanation_llm_timeout_seconds == 900.0
+
+
 def test_prometheus_metrics_endpoint(tmp_path) -> None:
     from fastapi.testclient import TestClient
     from metro_scenario_studio.api.main import create_app

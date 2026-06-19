@@ -201,6 +201,9 @@ class ScenarioService:
                     round(network_agg.abs_error / network_agg.y_real, 12) if network_agg.y_real != 0 else None
                 )
 
+        if any(row.real_available for row in rows) or any(agg.real_available for agg in aggregates):
+            execution = execution.model_copy(update={"real_data_status": "datos reales disponibles"})
+
         explanations = self._build_explanations(
             execution,
             snapshot_warnings=[warning.message for warning in snapshot.warnings],

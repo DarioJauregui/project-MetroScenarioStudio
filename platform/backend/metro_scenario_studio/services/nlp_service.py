@@ -41,12 +41,25 @@ class LocalLlmChatClient:
     send_generation_options: bool = False
 
     def chat(self, system_prompt: str, input_text: str) -> str:
-        payload: dict[str, Any] = {
-            "model": self.model,
-            "system_prompt": system_prompt,
-            "input": f"/no_think\n{input_text}",
-        }
-        if self.send_generation_options:
+        user_content = f"/no_think\n{input_text}"
+        if "/v1/chat/completions" in self.endpoint:
+            payload: dict[str, Any] = {
+                "model": self.model,
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_content},
+                ],
+                "max_tokens": self.max_tokens,
+                "temperature": self.temperature,
+                "stream": False,
+            }
+        else:
+            payload = {
+                "model": self.model,
+                "system_prompt": system_prompt,
+                "input": user_content,
+            }
+        if self.send_generation_options and "/v1/chat/completions" not in self.endpoint:
             payload.update(
                 {
                     "max_tokens": self.max_tokens,

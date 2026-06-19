@@ -404,6 +404,7 @@ def test_run_scenario_enriches_network_date_actuals_from_storage_csv(tmp_path) -
 
     network_date = next(row for row in payload["aggregates"] if row["level"] == "network_date")
     network = next(row for row in payload["aggregates"] if row["level"] == "network")
+    assert payload["execution"]["real_data_status"] == "datos reales disponibles"
     assert network_date["target_date"] == "2026-05-20"
     assert network_date["y_real"] == 43210.0
     assert network_date["real_available"] is True
