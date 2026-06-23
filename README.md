@@ -1,17 +1,35 @@
 # Metro Scenario Studio
 
-Monorepo local autonomo para prediccion diaria de demanda, simulacion de escenarios y supervision tecnica de modelos de Metro de Malaga.
+> **Aviso de uso académico**
+>
+> Este repositorio forma parte del Trabajo Fin de Máster de Darío Jáuregui Hernández en el Máster Universitario en Inteligencia Artificial de UNIR.
+>
+> El código se publica únicamente con fines de revisión y evaluación académica. No se autoriza su uso comercial, redistribución, explotación en producción ni incorporación en productos o servicios de terceros sin autorización expresa del autor.
+>
+> El repositorio no contiene datos internos de explotación, credenciales ni ficheros brutos de Metro de Málaga.
 
-La carpeta `project-MetroScenarioStudio` es ahora la unidad de trabajo y es la unión de los repos legacy externos metro-demand-models y metro-demand-platform. Estos no son dependencias runtime del monorepo.
+Metro Scenario Studio es un monorepo local autonomo para construir, validar y explotar modelos diarios de demanda de Metro de Malaga. El objetivo es que un equipo pueda actualizar datos, reentrenar modelos, simular escenarios what-if, explicar predicciones con trazabilidad y observar el estado tecnico desde una unica carpeta de trabajo.
+
+La carpeta `project-MetroScenarioStudio` es la unidad de trabajo. El paquete Python vive dentro de `ml_pipeline` y no requiere repositorios externos para ejecutarse en local.
+
+![Captura de Metro Scenario Studio](docs/assets/platform-overview.png)
 
 ## Estructura
 
-- `ml_pipeline/`: paquete Python `metro-demand-models`, entrenamiento, inferencia, drift y artefactos de modelos.
+- `ml_pipeline/`: paquete Python de entrenamiento, inferencia, drift y artefactos de modelos.
 - `platform/backend/`: API FastAPI, SQLite local, exportacion/importacion Excel y endpoint Prometheus `/metrics`.
 - `platform/frontend/`: aplicacion React/Vite.
 - `pipelines/`: orquestador diario local para refrescar datos, reentrenar y validar modelos.
 - `data/`: datos locales y punteros DVC para maestros pesados.
 - `infrastructure/`: Docker Compose local con backend, frontend, MLflow, Prometheus y Grafana.
+
+## Alcance Actual
+
+- Todo el desarrollo activo vive dentro de `project-MetroScenarioStudio`.
+- `ml_pipeline/conf/base/config.toml` resuelve datos desde `../data`; `ml_pipeline/conf/local/config.toml` queda solo para overrides locales ignorados por Git.
+- El backend usa `ml_pipeline` como raiz de artefactos y `platform/backend/storage/demanda_historica_MM.csv` como historico real por defecto.
+- Docker Compose levanta plataforma, observabilidad y MLflow para uso local.
+- Quedan fuera de esta fase el remoto DVC compartido, registry corporativo, promocion formal de modelos y alertas conectadas a canales reales.
 
 ## Instalacion Local
 
@@ -95,9 +113,11 @@ El pipeline se ejecuta desde la raiz del monorepo:
 .\.venv\Scripts\python.exe pipelines\run_pipeline.py
 ```
 
-La configuracion vive en `pipelines/pipeline_config.json`. `models_repo_dir` y `platform_repo_dir` son relativos a la raiz del monorepo por defecto. El unico origen externo admitido en esta fase es la carpeta de validaciones brutas configurada en `data_source_dir` (`M:\...` en el entorno local actual).
+La configuracion versionada vive en `pipelines/pipeline_config.json`. `models_repo_dir` y `platform_repo_dir` son relativos a la raiz del monorepo por defecto. `data_source_dir` apunta a la carpeta local donde cada entorno tenga los CSV diarios de validaciones brutas. Para una maquina concreta, copie `pipelines/pipeline_config.json` a `pipelines/config.json`; ese archivo local esta ignorado por Git y tiene prioridad al ejecutar el pipeline.
 
-Para construir datasets operativos completos, deben existir en `data/raw` los workbooks configurados en `ml_pipeline/conf/base/config.toml`, por ejemplo `Servicios Hist*.xlsx`. Si faltan, el pipeline continua con los pasos no criticos, pero no genera esos datasets operativos.
+Para construir datasets operativos completos, deben existir en `data/raw` los workbooks configurados en `ml_pipeline/conf/base/config.toml`: `Servicios Hist*.xlsx`, `Calendario_Eventos.xlsx` e `Incidencias_Historico.xlsx`. Si faltan, el pipeline marca ese paso como `skipped` y continua con entrenamiento, evaluacion, inferencia smoke y drift.
+
+La descarga corporativa de historico real usa opcionalmente `sp_DataCenterBI`. Para habilitarla, define `METRO_DATACENTER_BI_LIB_PATH` o `datacenter_bi_lib_path` en `pipelines/pipeline_config.json`. Si no esta disponible, el pipeline conserva el CSV historico local existente y continua.
 
 ## Trazabilidad MLOps
 
@@ -151,7 +171,7 @@ URLs del stack Docker:
 - Backend API: `http://127.0.0.1:8011`
 - Metricas Prometheus crudas del backend: `http://127.0.0.1:8011/metrics`
 - Prometheus: `http://127.0.0.1:9090`
-- Grafana: `http://127.0.0.1:3000` (`admin` / `admin`)
+- Grafana: `http://127.0.0.1:3000` (credenciales locales configuradas en `infrastructure/docker-compose.yml`)
 - MLflow: `http://127.0.0.1:5000`
 
 Grafana arranca con el datasource `Prometheus` provisionado y el dashboard `Metro Scenario Studio MLOps`. Prometheus carga reglas de alerta basicas desde `infrastructure/prometheus/alerts.yml`.
@@ -180,11 +200,7 @@ El prefijo debe incluir host y namespace/proyecto, pero no el nombre final de ca
 
 ## Datos y DVC
 
-Los datos pesados permanecen fuera de Git. DVC esta configurado con un remoto local por defecto:
-
-```powershell
-C:\Users\d.jauregui\DVCRemotes\MetroScenarioStudio
-```
+Los datos pesados permanecen fuera de Git. La configuracion versionada de DVC no publica rutas personales. Para trabajar en una maquina concreta, configure un remoto local en `.dvc/config.local` o use `dvc remote add --local`.
 
 El repositorio versiona con DVC:
 
@@ -202,7 +218,7 @@ Flujo habitual:
 .\.venv\Scripts\dvc.exe push
 ```
 
-`dvc.yaml` define el stage `daily_pipeline` para ejecutar `pipelines/run_pipeline.py` y registrar metricas operativas ligeras. El remoto corporativo compartido queda como fase posterior: basta con cambiar `remote.localremote.url` o anadir un nuevo remoto DVC.
+`dvc.yaml` define el stage `daily_pipeline` para ejecutar `pipelines/run_pipeline.py` y registrar metricas operativas ligeras. El remoto corporativo compartido queda como fase posterior: basta con anadir un remoto DVC local o compartido sin versionar credenciales ni rutas privadas.
 
 ## Limites de Esta Fase
 

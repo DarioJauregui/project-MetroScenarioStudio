@@ -40,7 +40,7 @@
 # station_code_aliases = { PBI = "PBL", NUEVO = "COD" }
 
 [operations.naming]
-# Ejemplo si un master local trae una abreviatura legacy y quieres corregirla en la capa operativa:
+# Ejemplo si un master local trae una abreviatura antigua y quieres corregirla en la capa operativa:
 # station_abbrev_corrections = { PBI = "PBL" }
 
 [daily_modeling]

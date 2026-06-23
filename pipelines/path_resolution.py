@@ -30,3 +30,7 @@ def resolve_pipeline_paths(config: Mapping[str, Any], *, monorepo_root: Path) ->
             root / "data" / "processed" / "validaciones" / "validaciones_consolidado.parquet"
         ),
     )
+
+
+def missing_workbook_patterns(raw_data_dir: Path, patterns: tuple[str, ...]) -> list[str]:
+    return [pattern for pattern in patterns if not any(raw_data_dir.glob(pattern))]

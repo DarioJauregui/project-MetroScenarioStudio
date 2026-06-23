@@ -21,11 +21,11 @@ Desde la raiz del monorepo:
 
 ## Configuracion
 
-`pipeline_config.json` mantiene rutas relativas al monorepo salvo el origen bruto de validaciones:
+`pipeline_config.json` mantiene rutas relativas al monorepo salvo el origen bruto de validaciones. Para una maquina concreta, copie este archivo a `pipelines/config.json`; ese archivo local esta ignorado por Git y tiene prioridad:
 
 ```json
 {
-  "data_source_dir": "M:\\AOPJA\\Informes\\1_Inf_diarios\\xx_Automaticos_EnPruebas",
+  "data_source_dir": "D:\\ruta\\local\\validaciones",
   "models_repo_dir": "ml_pipeline",
   "platform_repo_dir": "platform",
   "overwrite_threshold_months": 0.05,
@@ -88,7 +88,7 @@ Antes de ejecutarlo en una maquina nueva:
 Copy-Item pipelines\.env.example pipelines\.env
 ```
 
-`pipelines/.env` debe rellenarse con credenciales reales fuera de Git. Los datos y modelos versionados se sincronizan con:
+`pipelines/.env` y `pipelines/config.json` deben rellenarse con valores reales fuera de Git. Los datos y modelos versionados se sincronizan con:
 
 ```powershell
 .\.venv\Scripts\dvc.exe push

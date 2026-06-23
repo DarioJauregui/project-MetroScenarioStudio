@@ -9,7 +9,7 @@ graph TD
     end
 
     subgraph Consolidación Validaciones
-        A[M:\ xx_Automaticos_EnPruebas] -->|Escaneo de CSVs diarios| B(run_pipeline.py)
+        A[Carpeta local de validaciones] -->|Escaneo de CSVs diarios| B(run_pipeline.py)
         B -->|PyArrow streaming compute| C{Consolidación Parquet}
         C -->|Filtro idempotente| D[validaciones_consolidado.parquet]
     end

@@ -215,7 +215,7 @@ class NaturalLanguageService:
         return result
 
 
-def legacy_build_system_prompt() -> str:
+def build_system_prompt_reference() -> str:
     return """
 Eres un modulo NLU para un wizard de escenarios de Metro de Malaga.
 Devuelve solo JSON valido con este frame:

@@ -9,8 +9,23 @@ from datetime import datetime, timedelta
 from pathlib import Path
 import pandas as pd
 import pytz
-from path_resolution import resolve_pipeline_paths
+from path_resolution import missing_workbook_patterns, resolve_pipeline_paths
 from run_summary import PipelineRunSummary
+
+
+def load_env_file(path: Path) -> None:
+    if not path.exists():
+        return
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        value = value.strip().strip('"').strip("'")
+        if key and key not in os.environ:
+            os.environ[key] = value
+
 
 # Configurar logging
 log_format = "%(asctime)s - %(levelname)s - %(message)s"
@@ -19,6 +34,7 @@ logger = logging.getLogger("metro_demand_pipeline")
 
 # Cargar configuración
 pipeline_dir = Path(__file__).resolve().parent
+load_env_file(pipeline_dir / ".env")
 config_path = pipeline_dir / "config.json"
 # Fallback to pipeline_config.json if config.json doesn't exist
 if not config_path.exists():
@@ -77,6 +93,7 @@ try:
         capture_output=True,
         text=True,
         encoding="utf-8",
+        errors="replace",
     )
     if result_events.returncode != 0:
         logger.warning(
@@ -632,7 +649,7 @@ else:
 # Buscar archivos CSV diarios en el origen
 logger.info(f"Escaneando directorio origen de datos: {data_source_dir}...")
 csv_files = []
-# Buscamos archivos con patrón: M:\AOPJA\Informes\1_Inf_diarios\xx_Automaticos_EnPruebas\Año\Mes_Año\diamesaño\Validaciones detalladas diamesaño.csv
+# Buscamos archivos con patrón: data_source_dir\Año\Mes_Año\diamesaño\Validaciones detalladas diamesaño.csv
 for csv_path in data_source_dir.glob("*/*/*/Validaciones detalladas *.csv"):
     day_folder = csv_path.parent.name
     month_folder = csv_path.parent.parent.name
@@ -1057,12 +1074,30 @@ model_scripts.extend(
 
 # Definimos cuáles son críticos para detener el pipeline en caso de fallo
 critical_scripts = {"scripts/build_daily_training_dataset.py", "scripts/train.py"}
+operational_workbook_patterns = ("Servicios Hist*.xlsx", "Calendario_Eventos.xlsx", "Incidencias_Historico.xlsx")
 
 for script in model_scripts:
     logger.info(f"Ejecutando script del repositorio de modelos: {script}...")
     is_critical = script in critical_scripts
     pipeline_summary.start_step(f"model:{script}", critical=is_critical)
     try:
+        if script == "scripts/build_operational_datasets.py":
+            missing_patterns = missing_workbook_patterns(monorepo_root / "data" / "raw", operational_workbook_patterns)
+            if missing_patterns:
+                message = (
+                    "Omitiendo datasets operativos: faltan workbooks en data/raw para "
+                    + ", ".join(missing_patterns)
+                )
+                logger.warning(message)
+                pipeline_summary.finish_step(
+                    f"model:{script}",
+                    status="skipped",
+                    critical=False,
+                    message=message,
+                    metadata={"missing_patterns": missing_patterns},
+                )
+                continue
+
         # Configurar variables de entorno para evitar sobrecargar la CPU en entornos con recursos limitados (OpenMP/BLAS)
         env = os.environ.copy()
         env["OMP_NUM_THREADS"] = "1"
@@ -1080,7 +1115,13 @@ for script in model_scripts:
             f"import runpy; sys.argv=['{script}']; runpy.run_path('{script}', run_name='__main__')"
         )
         result = subprocess.run(
-            [str(python_exe), "-c", cmd_code], cwd=str(models_repo_dir), capture_output=True, text=True, env=env
+            [str(python_exe), "-c", cmd_code],
+            cwd=str(models_repo_dir),
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            env=env,
         )
         if result.returncode != 0:
             logger.error(f"Error ejecutando {script} (Código de salida: {result.returncode})")

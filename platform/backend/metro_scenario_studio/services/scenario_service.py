@@ -146,9 +146,10 @@ class ScenarioService:
             has_accepted_llm_items=has_accepted_llm,
             imported_modified=False,
         )
+        has_forecastable_context = bool(execution.input.events_final) or bool(execution.input.weather_final)
         model_variant = (
             "forecastable_scenario"
-            if status in {ScenarioStatus.WHAT_IF, ScenarioStatus.DERIVADA}
+            if status in {ScenarioStatus.WHAT_IF, ScenarioStatus.DERIVADA} or has_forecastable_context
             else "strict_available"
         )
         execution = execution.model_copy(

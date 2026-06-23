@@ -11,6 +11,7 @@ __pycache__/
 *.egg-info/
 build/
 ml_pipeline/conf/local/config.toml
+pipelines/config.json
 
 
 # Directorios de datos locales temporales.

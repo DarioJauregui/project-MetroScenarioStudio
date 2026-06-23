@@ -1,52 +1,49 @@
 {
-  "timestamp": "2026-06-18T10:14:20.887907",
+  "timestamp": "2026-06-23T10:30:50.105239",
   "drift_metrics": {
     "demand_validations": {
-      "drift_detected": true,
-      "p_value": 3.2859730097483136e-06,
-      "ks_statistic": 0.4502257124047776,
-      "psi": 1.3922417567335281,
-      "status": "drifted"
+      "status": "error",
+      "message": "Unable to allocate 1.46 GiB for an array with shape (196515017,) and data type int64"
     },
     "weather_features": {
       "temp_max_c": {
         "drift_detected": true,
-        "p_value": 4.680443858457593e-10,
-        "ks_statistic": 0.572031076581576,
-        "psi": 1.2078727606083888,
+        "p_value": 4.5859354117503484e-10,
+        "ks_statistic": 0.5722838137472284,
+        "psi": 1.3075965822716509,
         "status": "drifted"
       },
       "temp_min_c": {
         "drift_detected": true,
-        "p_value": 3.4491702457305673e-16,
-        "ks_statistic": 0.7107658157602663,
-        "psi": 1.8824305851815248,
+        "p_value": 3.323981925834193e-16,
+        "ks_statistic": 0.7110864745011086,
+        "psi": 1.8659371108115312,
         "status": "drifted"
       },
       "temp_mean_c": {
         "drift_detected": true,
-        "p_value": 1.4052396754928323e-14,
-        "ks_statistic": 0.679023307436182,
-        "psi": 1.5417968278761225,
+        "p_value": 1.3526511047065962e-14,
+        "ks_statistic": 0.6793791574279379,
+        "psi": 1.7013308501654907,
         "status": "drifted"
       },
       "precip_mm": {
         "drift_detected": false,
-        "p_value": 0.5393844003733368,
-        "ks_statistic": 0.13962264150943396,
-        "psi": 0.1666869852635995,
+        "p_value": 0.9802612275438227,
+        "ks_statistic": 0.07993705743509048,
+        "psi": 0.04467762130134781,
         "status": "stable"
       }
     }
   },
   "summary": {
     "schema_version": 1,
-    "timestamp": "2026-06-18T10:14:20.887907",
+    "timestamp": "2026-06-23T10:30:50.105239",
     "global_status": "critical",
-    "drift_report_path": "C:\\Users\\d.jauregui\\Desktop\\MetroProyectos\\2026_DemandaConIA\\Desarrollo\\project-MetroScenarioStudio\\ml_pipeline\\artifacts\\monitoring\\drift_metrics.json",
+    "drift_report_path": "ml_pipeline/artifacts/monitoring/drift_metrics.json",
     "checks": {
       "concept_drift": {
-        "status": "drifted",
+        "status": "error",
         "source": "demand_validations"
       },
       "data_drift": {

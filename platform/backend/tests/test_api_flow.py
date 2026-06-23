@@ -411,6 +411,76 @@ def test_run_scenario_enriches_network_date_actuals_from_storage_csv(tmp_path) -
     assert network["y_real"] == 43210.0
 
 
+def test_what_if_scenario_enriches_network_date_actuals_from_storage_csv(tmp_path) -> None:
+    settings = Settings(
+        storage_dir=tmp_path / "storage",
+        sqlite_path=tmp_path / "storage" / "metro_scenario_studio.db",
+        metro_demand_models_root=tmp_path / "readonly-models",
+        use_mock_inference=True,
+    )
+    settings.storage_dir.mkdir(parents=True)
+    settings.historical_demand_csv.write_text(
+        "Fecha,Viajeros\n2026-05-20,43210\n",
+        encoding="utf-8",
+    )
+    client = TestClient(create_app(settings))
+    scenario_id = client.post(
+        "/api/scenarios",
+        json={
+            "range_start": "2026-05-20",
+            "range_end": "2026-05-20",
+            "manual_overrides": [{"type": "weather", "field": "rain", "value": True}],
+        },
+    ).json()["id"]
+
+    payload = client.post(f"/api/scenarios/{scenario_id}/run").json()
+
+    network_date = next(row for row in payload["aggregates"] if row["level"] == "network_date")
+    assert payload["execution"]["status"] == "what_if"
+    assert payload["execution"]["real_data_status"] == "datos reales disponibles"
+    assert network_date["y_real"] == 43210.0
+    assert network_date["real_available"] is True
+
+
+def test_base_scenario_uses_forecastable_variant_when_external_context_exists(tmp_path) -> None:
+    settings = Settings(
+        storage_dir=tmp_path / "storage",
+        sqlite_path=tmp_path / "storage" / "metro_scenario_studio.db",
+        metro_demand_models_root=tmp_path / "readonly-models",
+        use_mock_inference=True,
+    )
+    client = TestClient(create_app(settings))
+    scenario_id = client.post(
+        "/api/scenarios",
+        json={"range_start": "2026-05-20", "range_end": "2026-05-20"},
+    ).json()["id"]
+
+    payload = client.post(f"/api/scenarios/{scenario_id}/run").json()
+
+    assert payload["execution"]["status"] == "base"
+    assert payload["execution"]["model_variant"] == "forecastable_scenario"
+
+
+def test_base_scenario_uses_strict_variant_only_without_events_or_weather(tmp_path) -> None:
+    settings = Settings(
+        storage_dir=tmp_path / "storage",
+        sqlite_path=tmp_path / "storage" / "metro_scenario_studio.db",
+        data_root=tmp_path / "data",
+        metro_demand_models_root=tmp_path / "readonly-models",
+        use_mock_inference=False,
+    )
+    client = TestClient(create_app(settings))
+    scenario_id = client.post(
+        "/api/scenarios",
+        json={"range_start": "2026-05-20", "range_end": "2026-05-20"},
+    ).json()["id"]
+
+    payload = client.post(f"/api/scenarios/{scenario_id}/run").json()
+
+    assert payload["execution"]["status"] == "base"
+    assert payload["execution"]["model_variant"] == "strict_available"
+
+
 def test_historical_what_if_keeps_what_if_status_with_real_data_warning(tmp_path) -> None:
     models_root = tmp_path / "readonly-models"
     predictions_dir = models_root / "artifacts" / "daily_modeling" / "predictions"
@@ -1262,13 +1332,13 @@ def test_api_compares_two_executed_scenarios_with_absolute_and_percent_deltas(tm
 
     base_id = client.post(
         "/api/scenarios",
-        json={"range_start": "2026-05-20", "range_end": "2026-05-20"},
+        json={"range_start": "2026-07-20", "range_end": "2026-07-20"},
     ).json()["id"]
     what_if_id = client.post(
         "/api/scenarios",
         json={
-            "range_start": "2026-05-20",
-            "range_end": "2026-05-20",
+            "range_start": "2026-07-20",
+            "range_end": "2026-07-20",
             "manual_overrides": [{"type": "weather", "field": "rain", "value": True}],
         },
     ).json()["id"]

@@ -14,17 +14,28 @@ def test_pipeline_path_config_resolves_relative_repos_from_monorepo_root() -> No
 
     resolved = resolve_pipeline_paths(
         {
-            "data_source_dir": r"M:\AOPJA\Informes\1_Inf_diarios\xx_Automaticos_EnPruebas",
+            "data_source_dir": r"D:\ruta\local\validaciones",
             "models_repo_dir": "ml_pipeline",
             "platform_repo_dir": "platform",
         },
         monorepo_root=MONOREPO_ROOT,
     )
 
-    assert resolved.data_source_dir == Path(r"M:\AOPJA\Informes\1_Inf_diarios\xx_Automaticos_EnPruebas")
+    assert resolved.data_source_dir == Path(r"D:\ruta\local\validaciones")
     assert resolved.models_repo_dir == MONOREPO_ROOT / "ml_pipeline"
     assert resolved.platform_repo_dir == MONOREPO_ROOT / "platform"
     assert resolved.python_exe == MONOREPO_ROOT / ".venv" / "Scripts" / "python.exe"
     assert resolved.consolidated_validations_path == (
         MONOREPO_ROOT / "data" / "processed" / "validaciones" / "validaciones_consolidado.parquet"
     )
+
+
+def test_missing_workbook_patterns_reports_only_absent_patterns(tmp_path) -> None:
+    from pipelines.path_resolution import missing_workbook_patterns
+
+    (tmp_path / "Calendario_Eventos.xlsx").write_text("placeholder", encoding="utf-8")
+
+    assert missing_workbook_patterns(
+        tmp_path,
+        ("Servicios Hist*.xlsx", "Calendario_Eventos.xlsx"),
+    ) == ["Servicios Hist*.xlsx"]

@@ -1,5 +1,5 @@
 {
-  "data_source_dir": "M:\\AOPJA\\Informes\\1_Inf_diarios\\xx_Automaticos_EnPruebas",
+  "data_source_dir": "D:\\ruta\\local\\validaciones",
   "models_repo_dir": "ml_pipeline",
   "platform_repo_dir": "platform",
   "overwrite_threshold_months": 0.05,
